@@ -1,0 +1,20 @@
+{
+  "name": "sample-rxjs-socket.io",
+  "version": "1.0.0",
+  "description": "A sample repo to showcase `rxjs-socket.io`",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scristobal/sample-rxjs-socket.io.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/scristobal/sample-rxjs-socket.io/issues"
+  },
+  "homepage": "https://github.com/scristobal/sample-rxjs-socket.io#readme"
+}

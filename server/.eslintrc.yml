@@ -1,0 +1,28 @@
+env:
+    node: true
+    es2021: true
+    jest: true
+
+parser: '@typescript-eslint/parser'
+extends:
+    - 'eslint:recommended'
+    - 'plugin:@typescript-eslint/eslint-recommended'
+    - 'plugin:@typescript-eslint/recommended'
+    - 'plugin:prettier/recommended'
+    - 'prettier/@typescript-eslint'
+
+parserOptions:
+    ecmaVersion: latest
+    sourceType: module
+plugins:
+    - '@typescript-eslint'
+    - 'import'
+    - 'jest'
+    - 'prettier'
+
+rules:
+    {
+        '@typescript-eslint/explicit-module-boundary-types': 'off',
+        '@typescript-eslint/ban-ts-comment': 'off',
+        '@typescript-eslint/no-empty-function': 'off'
+    }
