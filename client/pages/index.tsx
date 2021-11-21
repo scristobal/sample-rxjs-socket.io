@@ -18,7 +18,9 @@ const Home: NextPage = () => {
         if (connection) {
             const { message$$ } = connection;
 
-            message$$.subscribe((msg) => setMessages((messages) => messages.concat(JSON.stringify(msg))));
+            message$$('server-chat').subscribe((msg) =>
+                setMessages((messages) => messages.concat(JSON.stringify(msg)))
+            );
         }
     }, [connection]);
 
@@ -28,7 +30,7 @@ const Home: NextPage = () => {
 
             const onClickHandler: MouseEventHandler<HTMLButtonElement> = (e) => {
                 e.preventDefault();
-                pushEvent('client').next(message);
+                pushEvent('client-chat').next(message);
                 setMessage('');
             };
 
@@ -52,7 +54,7 @@ const Home: NextPage = () => {
                 </p>
 
                 <form id='form' action=''>
-                    <input id='input' type='text' autoComplete='off' onChange={onChangeInput} />
+                    <input id='input' type='text' autoComplete='off' onChange={onChangeInput} value={message} />
                     <button onClick={onClickHandler} disabled={onClickHandler === undefined}>
                         Send
                     </button>

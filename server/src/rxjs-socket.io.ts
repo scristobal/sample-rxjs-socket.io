@@ -11,9 +11,8 @@ type FromSocket = (
     srv: undefined | Partial<ServerOptions> | http.Server | number,
     opts?: Partial<ServerOptions>
 ) => {
-    message$$: Observable<unknown[]>;
-    pushMessage: Observer<[eventName: string, ...args: unknown[]]>;
-    pushEvent: (eventName: string) => Observer<unknown[]>;
+    message$$: (eventName: string) => Observable<unknown>;
+    pushEvent: (eventName: string) => Observer<unknown>;
 };
 
 function fromSocketServer(opts?: Partial<ServerOptions>): ReturnType<FromSocket>;
@@ -24,30 +23,19 @@ function fromSocketServer(
 ) {
     const server = srv ? new Server(srv, opts) : new Server(opts);
 
-    const message$ = new Observable<[string, unknown[]]>((subscriber) => {
-        try {
-            server.on('connection', (socket) =>
-                socket.onAny((eventName: string, ...args) => subscriber.next([eventName, args]))
-            );
-            server.on('disconnect', () => subscriber.complete());
-        } catch (error) {
-            subscriber.error(error);
-        }
+    const message$$ = (eventName: string) =>
+        new Observable<unknown>((subscriber) => {
+            try {
+                server.on('connection', (socket) => socket.on(eventName, (msg) => subscriber.next(msg)));
+                server.on('disconnect', () => subscriber.complete());
+            } catch (error) {
+                subscriber.error(error);
+            }
 
-        server.engine.on('connection_error', (error: Error) => {
-            subscriber.error(error.message);
-        });
-    });
-
-    const message$$ = message$.pipe(share());
-
-    const pushMessage: Observer<[eventName: string, ...args: unknown[]]> = {
-        next: ([eventName, ...args]) => {
-            server.emit(eventName, ...args);
-        },
-        complete: () => server.close(),
-        error: (error) => console.error(error)
-    };
+            server.engine.on('connection_error', (error: Error) => {
+                subscriber.error(error.message);
+            });
+        }).pipe(share());
 
     const pushEvent = (eventName: string): Observer<unknown[]> => {
         return {
@@ -59,7 +47,7 @@ function fromSocketServer(
         };
     };
 
-    return { message$$, pushMessage, pushEvent };
+    return { message$$, pushEvent };
 }
 
 export { fromSocketServer };

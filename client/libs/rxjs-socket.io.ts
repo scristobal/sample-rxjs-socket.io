@@ -9,8 +9,7 @@ type FromSocketClient = (
     uri: string | Partial<ManagerOptions & SocketOptions>,
     opts?: Partial<ManagerOptions & SocketOptions>
 ) => {
-    message$$: Observable<[eventName: string, ...args: unknown[]]>;
-    pushMessage: Observer<[eventName: string, ...args: unknown[]]>;
+    message$$: (eventName: string) => Observable<unknown>;
     pushEvent: (eventName: string) => Observer<unknown>;
 };
 
@@ -24,29 +23,17 @@ function fromSocketClient(
 
     client.connect();
 
-    const message$ = new Observable<[eventName: string, ...args: unknown[]]>((subscriber) => {
-        client.onAny((eventName: string, ...args: unknown[]) => {
-            subscriber.next([eventName, ...args]);
-        });
+    const message$$ = (eventName: string): Observable<unknown> =>
+        new Observable<unknown>((subscriber) => {
+            client.on(eventName, (msg: unknown) => {
+                subscriber.next(msg);
+            });
 
-        client.on('connect_error', (error) => subscriber.error(error));
-        client.on('disconnect', () => {
-            subscriber.complete();
-        });
-    });
-
-    const pushMessage: Observer<[string, unknown[]]> = {
-        next: ([eventName, ...args]) => {
-            client.emit(eventName, args);
-        },
-        error: () => {
-            client.disconnect();
-            console.error();
-        },
-        complete: () => {
-            client.disconnect();
-        },
-    };
+            client.on('connect_error', (error) => subscriber.error(error));
+            client.on('disconnect', () => {
+                subscriber.complete();
+            });
+        }).pipe(share());
 
     const pushEvent = (eventName: string): Observer<unknown> => {
         return {
@@ -63,9 +50,7 @@ function fromSocketClient(
         };
     };
 
-    const message$$ = message$.pipe(share());
-
-    return { message$$, pushMessage, pushEvent };
+    return { message$$, pushEvent };
 }
 
 export { fromSocketClient };

@@ -29,5 +29,5 @@ const { message$$, pushEvent } = fromSocketServer(server, {
     }
 });
 
-message$$.subscribe((msg) => info(yellow(JSON.stringify(msg))));
-message$$.subscribe((msg) => pushEvent('sever').next([msg]));
+message$$('client-chat').subscribe((msg) => info(yellow(JSON.stringify(msg))));
+message$$('client-chat').subscribe((msg) => pushEvent('server-chat').next([msg]));
