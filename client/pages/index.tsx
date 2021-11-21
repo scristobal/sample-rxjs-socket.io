@@ -8,7 +8,7 @@ import styles from '../styles/Home.module.css';
 const Home: NextPage = () => {
     const [messages, setMessages] = useState<string[]>([]);
     const [message, setMessage] = useState('');
-    const [onClick, setOnClick] = useState<MouseEventHandler<HTMLButtonElement> | undefined>(undefined);
+    const [onClickHandler, setOnClickHandler] = useState<MouseEventHandler<HTMLButtonElement> | undefined>(undefined);
 
     const onChangeInput: ChangeEventHandler<HTMLInputElement> = (e) => setMessage(e.target.value);
 
@@ -18,12 +18,13 @@ const Home: NextPage = () => {
         if (connection) {
             const { message$$, pushMessage } = connection;
 
-            const func: MouseEventHandler<HTMLButtonElement> = (e) => {
+            const onClickHandler: MouseEventHandler<HTMLButtonElement> = (e) => {
                 e.preventDefault();
                 pushMessage.next(['from client', message]);
                 setMessage('');
             };
-            setOnClick(() => func);
+
+            setOnClickHandler(() => onClickHandler);
 
             message$$.subscribe((msg) => setMessages(messages.concat(JSON.stringify(msg))));
         }
@@ -46,7 +47,7 @@ const Home: NextPage = () => {
 
                 <form id='form' action=''>
                     <input id='input' type='text' autoComplete='off' onChange={onChangeInput} />
-                    <button onClick={onClick} disabled={onClick === undefined}>
+                    <button onClick={onClickHandler} disabled={onClickHandler === undefined}>
                         Send
                     </button>
                 </form>
