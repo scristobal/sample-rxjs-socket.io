@@ -16,7 +16,15 @@ const Home: NextPage = () => {
 
     useEffect(() => {
         if (connection) {
-            const { message$$, pushEvent } = connection;
+            const { message$$ } = connection;
+
+            message$$.subscribe((msg) => setMessages((messages) => messages.concat(JSON.stringify(msg))));
+        }
+    }, [connection]);
+
+    useEffect(() => {
+        if (connection) {
+            const { pushEvent } = connection;
 
             const onClickHandler: MouseEventHandler<HTMLButtonElement> = (e) => {
                 e.preventDefault();
@@ -25,10 +33,8 @@ const Home: NextPage = () => {
             };
 
             setOnClickHandler(() => onClickHandler);
-
-            message$$.subscribe((msg) => setMessages(messages.concat(JSON.stringify(msg))));
         }
-    }, [connection, message, messages]);
+    }, [connection, message]);
 
     return (
         <div className={styles.container}>
