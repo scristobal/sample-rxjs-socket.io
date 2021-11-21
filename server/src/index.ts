@@ -22,7 +22,7 @@ server.listen(port, () => {
     info(blueBright(`listening on ${url}:${port} \u{1F440}`));
 });
 
-const { message$$, pushMessage } = fromSocketServer(server, {
+const { message$$, pushEvent } = fromSocketServer(server, {
     cors: {
         origin: '*',
         methods: ['GET', 'POST']
@@ -30,4 +30,4 @@ const { message$$, pushMessage } = fromSocketServer(server, {
 });
 
 message$$.subscribe((msg) => info(yellow(JSON.stringify(msg))));
-message$$.subscribe((msg) => pushMessage.next(['from server', msg]));
+message$$.subscribe((msg) => pushEvent('sever').next([msg]));

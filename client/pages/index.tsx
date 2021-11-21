@@ -16,11 +16,11 @@ const Home: NextPage = () => {
 
     useEffect(() => {
         if (connection) {
-            const { message$$, pushMessage } = connection;
+            const { message$$, pushEvent } = connection;
 
             const onClickHandler: MouseEventHandler<HTMLButtonElement> = (e) => {
                 e.preventDefault();
-                pushMessage.next(['from client', message]);
+                pushEvent('client').next(message);
                 setMessage('');
             };
 

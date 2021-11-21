@@ -10,7 +10,11 @@ type JSON = null | string | number | boolean | JSONArray | JSONObject;
 type FromSocket = (
     srv: undefined | Partial<ServerOptions> | http.Server | number,
     opts?: Partial<ServerOptions>
-) => { message$$: Observable<unknown[]>; pushMessage: Observer<[eventName: string, ...args: unknown[]]> };
+) => {
+    message$$: Observable<unknown[]>;
+    pushMessage: Observer<[eventName: string, ...args: unknown[]]>;
+    pushEvent: (eventName: string) => Observer<unknown[]>;
+};
 
 function fromSocketServer(opts?: Partial<ServerOptions>): ReturnType<FromSocket>;
 function fromSocketServer(srv?: http.Server | number, opts?: Partial<ServerOptions>): ReturnType<FromSocket>;
@@ -45,7 +49,17 @@ function fromSocketServer(
         error: (error) => console.error(error)
     };
 
-    return { message$$, pushMessage };
+    const pushEvent = (eventName: string): Observer<unknown[]> => {
+        return {
+            next: ([...args]) => {
+                server.emit(eventName, ...args);
+            },
+            complete: () => server.close(),
+            error: (error) => console.error(error)
+        };
+    };
+
+    return { message$$, pushMessage, pushEvent };
 }
 
 export { fromSocketServer };

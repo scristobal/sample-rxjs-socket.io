@@ -11,6 +11,7 @@ type FromSocketClient = (
 ) => {
     message$$: Observable<[eventName: string, ...args: unknown[]]>;
     pushMessage: Observer<[eventName: string, ...args: unknown[]]>;
+    pushEvent: (eventName: string) => Observer<unknown>;
 };
 
 function fromSocketClient(opts?: Partial<ManagerOptions & SocketOptions>): ReturnType<FromSocketClient>;
@@ -47,9 +48,24 @@ function fromSocketClient(
         },
     };
 
+    const pushEvent = (eventName: string): Observer<unknown> => {
+        return {
+            next: (args) => {
+                client.emit(eventName, args);
+            },
+            error: () => {
+                client.disconnect();
+                console.error();
+            },
+            complete: () => {
+                client.disconnect();
+            },
+        };
+    };
+
     const message$$ = message$.pipe(share());
 
-    return { message$$, pushMessage };
+    return { message$$, pushMessage, pushEvent };
 }
 
 export { fromSocketClient };

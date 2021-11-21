@@ -7,14 +7,15 @@ const useSocket = () => {
         | {
               message$$: Observable<[eventName: string, ...args: unknown[]]>;
               pushMessage: Observer<[eventName: string, ...args: unknown[]]>;
+              pushEvent: (eventName: string) => Observer<unknown>;
           }
         | undefined
     >(undefined);
 
     useEffect(() => {
         if (!status) {
-            const { message$$, pushMessage } = fromSocketClient('http://localhost:4000');
-            setStatus({ message$$, pushMessage });
+            const { message$$, pushMessage, pushEvent } = fromSocketClient('http://localhost:4000');
+            setStatus({ message$$, pushMessage, pushEvent });
         }
     }, [status]);
 
