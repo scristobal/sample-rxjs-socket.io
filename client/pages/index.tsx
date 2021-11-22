@@ -2,7 +2,7 @@ import type { NextPage } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
 import { ChangeEventHandler, MouseEventHandler, useEffect, useState } from 'react';
-import { useSocket } from '../hooks/useSocket';
+import { useConnection } from '../hooks/useConnection';
 import styles from '../styles/Home.module.css';
 
 const Home: NextPage = () => {
@@ -12,31 +12,25 @@ const Home: NextPage = () => {
 
     const onChangeInput: ChangeEventHandler<HTMLInputElement> = (e) => setMessage(e.target.value);
 
-    const connection = useSocket();
+    const { message$$, pushEvent } = useConnection();
 
     useEffect(() => {
-        if (connection) {
-            const { message$$ } = connection;
-
+        message$$ &&
             message$$('server-chat').subscribe((msg) =>
                 setMessages((messages) => messages.concat(JSON.stringify(msg)))
             );
-        }
-    }, [connection]);
+    }, [message$$]);
 
     useEffect(() => {
-        if (connection) {
-            const { pushEvent } = connection;
-
-            const onClickHandler: MouseEventHandler<HTMLButtonElement> = (e) => {
-                e.preventDefault();
-                pushEvent('client-chat').next(message);
-                setMessage('');
-            };
-
-            setOnClickHandler(() => onClickHandler);
-        }
-    }, [connection, message]);
+        pushEvent &&
+            setOnClickHandler(
+                (): MouseEventHandler<HTMLButtonElement> => (e) => {
+                    e.preventDefault();
+                    pushEvent('client-chat').next(message);
+                    setMessage('');
+                }
+            );
+    }, [pushEvent, message]);
 
     return (
         <div className={styles.container}>
