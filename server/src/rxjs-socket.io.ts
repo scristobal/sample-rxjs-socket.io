@@ -37,10 +37,10 @@ function fromSocketServer(
             });
         }).pipe(share());
 
-    const pushEvent = (eventName: string): Observer<unknown[]> => {
+    const pushEvent = (eventName: string): Observer<unknown> => {
         return {
-            next: ([...args]) => {
-                server.emit(eventName, ...args);
+            next: (args) => {
+                server.emit(eventName, args);
             },
             complete: () => server.close(),
             error: (error) => console.error(error)
